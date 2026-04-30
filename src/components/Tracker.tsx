@@ -75,7 +75,7 @@ export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, gameList,
             .map(room => {
                 // Pour chaque salle, on filtre ses propres trials selon le jeu sélectionné
                 const matchingTrials = selectedGame === "All"
-                    ? room.trials
+                    ? room.trials.filter(t => !locationChecked.includes(t.name))
                     : room.trials.filter(t => !locationChecked.includes(t.name) && t.game === selectedGame);
 
                 // On renvoie une copie de la salle avec uniquement les trials filtrés
@@ -84,7 +84,7 @@ export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, gameList,
             // C. On retire la salle si aucun trial ne correspond au filtre
             .filter(room => room.trials.length > 0);
 
-    }, [items, rooms, selectedGame]);
+    }, [items, rooms, locationChecked,selectedGame]);
     //setPlayerRoom(roomsTmp);
     return (
         <div style={{ padding: '20px', textAlign: 'left' }}>

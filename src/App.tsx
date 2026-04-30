@@ -10,11 +10,13 @@ const client = new Client();
 function App() {
   const isSubscribed = useRef(false);
   const [isConnected, setConnected] = useState(false)
-  const [serverHostAndPort, setServerAndPort] = useState("webhost.etsuna.ovh:53828")
-  const [slotName, setSlotName] = useState("BigKeep")
-  const [locationCheck, setLocactionCheck] = useState<number[]>([])
+  // const [serverHostAndPort, setServerAndPort] = useState("webhost.etsuna.ovh:53828")
+  // const [slotName, setSlotName] = useState("BigKeep")
   // const [serverHostAndPort, setServerAndPort] = useState("localhost:38281")
   // const [slotName, setSlotName] = useState("Niko")
+  const [serverHostAndPort, setServerAndPort] = useState("")
+  const [slotName, setSlotName] = useState("")
+  const [locationCheck, setLocactionCheck] = useState<number[]>([])
   const [passwd, setPassword] = useState("")
   const [messages, setMessages] = useState<string[]>([]);
   const [items, setItems] = useState<Item[]>([])
