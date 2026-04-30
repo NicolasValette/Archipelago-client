@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
-import { Client, clientStatuses, Item, type JSONRecord } from 'archipelago.js'
+import { Client, clientStatuses, Item } from 'archipelago.js'
 import './App.css'
 import { Terminal } from './Client/Terminal';
 import { Tracker } from './components/Tracker';
@@ -18,7 +18,6 @@ function App() {
   const [passwd, setPassword] = useState("")
   const [messages, setMessages] = useState<string[]>([]);
   const [items, setItems] = useState<Item[]>([])
-  const [allItems, setAllItems] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState<'login' | 'tracker'>('login')
   const [rooms, setRooms] = useState<Room[]>([])
   const [gamesList, setGamesList] = useState<Set<string>>(new Set())
@@ -103,7 +102,6 @@ function App() {
           trials: Object.entries(trialsData as Record<string, any>).map(([key2, trialGameName]) => {
             const description = objectivesDict[trialGameName as string];
             let trialGame;
-            const game = areaGameDict[roomKey] as string;
            // console.log("game : " + game);
             if (areaGameDict[roomKey] as string === "Game Medley") {
           //    console.log("description : " + description as string);
@@ -125,8 +123,6 @@ function App() {
       });
       setRooms(areaList);
       setGamesList(gamesSet);
-      const areaGames = tempData['area_games'];
-      const areaNames: string[] = Object.keys(areaGames as Record<string, any>)
       
       // await getStoredData(client.game);
       // await setupTrackerData(client.game);
@@ -157,38 +153,38 @@ function App() {
     }
   };
 
-  const setupTrackerData = async (gameName: string) => {
-    // 1. Récupérer le dictionnaire complet du jeu
-    const dataPackage = await client.package.fetchPackage([gameName]);
-    var st = client.storage.fetchItemNameGroups(gameName);
+  // const setupTrackerData = async (gameName: string) => {
+  //   // 1. Récupérer le dictionnaire complet du jeu
+  //   const dataPackage = await client.package.fetchPackage([gameName]);
+  //   var st = client.storage.fetchItemNameGroups(gameName);
 
-    if (dataPackage) {
-      // Liste de tous les items possibles dans le jeu
+  //   if (dataPackage) {
+  //     // Liste de tous les items possibles dans le jeu
 
-      const allPossibleItems = Object.entries(dataPackage.games[gameName]).map(([id, name]) => ({
-        id: parseInt(id),
-        name: name
-      }));
+  //     const allPossibleItems = Object.entries(dataPackage.games[gameName]).map(([id, name]) => ({
+  //       id: parseInt(id),
+  //       name: name
+  //     }));
 
-      // // Liste de tous les lieux (Trials, Keys, etc.)
-      // const allLocations = Object.entries(dataPackage.location_id_to_name).map(([id, name]) => ({
-      //   id: parseInt(id),
-      //   name: name
-      // }));
+  //     // // Liste de tous les lieux (Trials, Keys, etc.)
+  //     // const allLocations = Object.entries(dataPackage.location_id_to_name).map(([id, name]) => ({
+  //     //   id: parseInt(id),
+  //     //   name: name
+  //     // }));
 
-      console.log("Données chargées pour le tracker !");
-      // C'est ici que tu filtrerais pour ne garder que "Keymaster's Keep", etc.
-      setAllItems(allPossibleItems.map(item => client.package.lookupItemName(gameName, item.id)))
-    }
-  };
-  const getStoredData = async (gameName: string) => {
-    const data = await client.storage.fetchItemNameGroups(gameName);
-    const data2 = await client.storage.fetchLocationNameGroups(gameName);
-    const data5 = client.storage.store
-    const data3 = await client.storage.fetch('slot_data');
-    const data4 = await client.storage.fetch('area_trial_game_objectives');
-    console.log("recup");
-  }
+  //     console.log("Données chargées pour le tracker !");
+  //     // C'est ici que tu filtrerais pour ne garder que "Keymaster's Keep", etc.
+  //     setAllItems(allPossibleItems.map(item => client.package.lookupItemName(gameName, item.id)))
+  //   }
+  // };
+  // const getStoredData = async (gameName: string) => {
+  //   const data = await client.storage.fetchItemNameGroups(gameName);
+  //   const data2 = await client.storage.fetchLocationNameGroups(gameName);
+  //   const data5 = client.storage.store
+  //   const data3 = await client.storage.fetch('slot_data');
+  //   const data4 = await client.storage.fetch('area_trial_game_objectives');
+  //   console.log("recup");
+  // }
 
 
   return (
@@ -217,7 +213,6 @@ function App() {
 
             <Terminal title="Liste des objets" messages={(items.map(item => item.name))} />
 
-            <Terminal title="List de tous les objets" messages={allItems} />
           </div>
         ) :
         (

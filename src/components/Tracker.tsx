@@ -16,17 +16,17 @@ interface TrackerProps {
     onBack: () => void; // Une fonction pour revenir à l'accueil
 }
 
-export const Tracker: React.FC<TrackerProps> = ({ title, items, client, rooms, trials, trialDesc, gameList, locationChecked, onBack }) => {
+export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, gameList, locationChecked, onBack }) => {
 
-const [selectedGame, setSelectedGame] = useState("All")
-    const [RoomRecord, setRoomRecord] = useState<Record<string, Room>>({})
-    const [TrialRecord, setTrialRecord] = useState<Record<string, string>>({})
-    const [playerRoom, setPlayerRoom] = useState<Room[]>([])
-
+    const [selectedGame, setSelectedGame] = useState("All")
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
 
+    const availableGame = useMemo(() => {
+        const sortedGames = Array.from(gameList).sort()
+        return ["All", ...sortedGames]
+    }, [gameList]);
     // const roomsTmp: Room[] = [];
     // rooms.forEach((item) => {
     //     RoomRecord[item.name] = item;
@@ -44,21 +44,20 @@ const [selectedGame, setSelectedGame] = useState("All")
     // });
 
 
-    gameList.add("All")
-    const filteredRoom = useMemo(() => {
-        // On crée un dictionnaire pour accéder aux salles par nom rapidement (O(1))
-        const roomLookup: Record<string, Room> = {};
-        rooms.forEach(r => roomLookup[r.name] = r);
+    // const filteredRoom = useMemo(() => {
+    //     // On crée un dictionnaire pour accéder aux salles par nom rapidement (O(1))
+    //     const roomLookup: Record<string, Room> = {};
+    //     rooms.forEach(r => roomLookup[r.name] = r);
 
-        // On filtre les items pour trouver les unlocks et on récupère la salle correspondante
-        return items
-            .filter(itm => itm.name.includes("Unlock"))
-            .map(itm => {
-                const roomName = itm.name.split(':')[1]?.trim();
-                return roomLookup[roomName];
-            })
-            .filter(room => room !== undefined); // On enlève les erreurs si une salle n'est pas trouvée
-    }, [items, rooms]);
+    //     // On filtre les items pour trouver les unlocks et on récupère la salle correspondante
+    //     return items
+    //         .filter(itm => itm.name.includes("Unlock"))
+    //         .map(itm => {
+    //             const roomName = itm.name.split(':')[1]?.trim();
+    //             return roomLookup[roomName];
+    //         })
+    //         .filter(room => room !== undefined); // On enlève les erreurs si une salle n'est pas trouvée
+    // }, [items, rooms]);
 
 
 
@@ -103,7 +102,7 @@ const [selectedGame, setSelectedGame] = useState("All")
                     onChange={(e) => setSelectedGame(e.target.value)}
                     style={{ padding: '8px', borderRadius: '4px', backgroundColor: '#2a2a2a', color: 'white', border: '1px solid #555' }}
                 >
-                    {Array.from(gameList).sort().map(game => (
+                    {availableGame.map(game => (
                         <option key={game} value={game}>{game}</option>
                     ))}
                 </select>

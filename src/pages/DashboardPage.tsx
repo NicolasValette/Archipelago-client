@@ -1,13 +1,12 @@
 import TrialCard from '../components/TrialCard';
 import type { Room } from '../types';
-// Exemple de données (plus tard, elles viendront d'une API ou d'un State)
+
 const mockRooms: Room[] = [
   { 
     id: '1',
     name: "Room 1",
-    constraint: "Contrainte",
-    requiredKeys:[],
-    trials: [{ id: 't1', name: 'Énigme Laser'}] 
+    trials:[],
+    //trials: [{ id: 't1', name: 'Énigme Laser'}] 
   },
 ];
 

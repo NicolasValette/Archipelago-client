@@ -22,7 +22,7 @@ export function RoomCard({ room }: RoomCardProps) {
             backgroundColor: '#222',
             color: 'white'
           }}>
-            <b>{trial.name}</b> - <b>[{trial.game}]</b><i>{trial.description}</i>
+            <b>{trial.name}</b> - <b>[{trial.game}]</b> <i>{trial.description}</i>
           </div>
         ))
       }
