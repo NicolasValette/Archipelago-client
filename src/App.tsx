@@ -232,8 +232,9 @@ function App() {
           />
         )
       }
-      <div style={{ fontSize: '0.8em', color: '#666' }}>
-        Version : {appVersion}
+      <div style={{ fontSize: '0.7em', color: '#666' }}>
+        <p>Version : {appVersion}</p>
+        <p style={{ fontSize: '0.6em'}}><i>NoNiDev - 2026</i></p>
       </div>
     </div>
   );
