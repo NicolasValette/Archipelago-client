@@ -10,12 +10,12 @@ const client = new Client();
 function App() {
   const isSubscribed = useRef(false);
   const [isConnected, setConnected] = useState(false)
-  // const [serverHostAndPort, setServerAndPort] = useState("webhost.etsuna.ovh:53828")
-  // const [slotName, setSlotName] = useState("BigKeep")
-  // const [serverHostAndPort, setServerAndPort] = useState("localhost:38281")
-  // const [slotName, setSlotName] = useState("Niko")
-  const [serverHostAndPort, setServerAndPort] = useState("")
-  const [slotName, setSlotName] = useState("")
+  const [serverHostAndPort, setServerAndPort] = useState(
+    localStorage.getItem("ap_host") || ""
+  );
+  const [slotName, setSlotName] = useState(
+    localStorage.getItem("ap_slot") || ""
+  );
   const [locationCheck, setLocactionCheck] = useState<number[]>([])
   const [passwd, setPassword] = useState("")
   const [messages, setMessages] = useState<string[]>([]);
@@ -72,11 +72,17 @@ function App() {
     // 1. On indique que la connexion commence (pour désactiver le bouton)
     setMessages([]);
     setItems([])
-    setConnected(true);
+    if (!serverHostAndPort || !slotName) {
+      console.error("Host and/or slot name is missing");
+      return;
+    }
     try {
       // C'est ici que la magie opère avec archipelago.js
+      localStorage.setItem("ap_host", serverHostAndPort);
+      localStorage.setItem("ap_slot", slotName);
       console.log("Tentative de connexion à :", serverHostAndPort);
       await client.login(serverHostAndPort, slotName, "", { tags: ["Niko Client", "Tracker"], slotData: true });
+      setConnected(true);
       //handleItems(client.items.received);
     } catch (erreur) {
       console.error("La connexion a échoué", erreur);
@@ -138,7 +144,6 @@ function App() {
   };
   const Disconnect = () => {
     console.log("Disonnect")
-
     setConnected(false);
     window.scrollTo(0, 0);
 
@@ -197,11 +202,11 @@ function App() {
           <div>
             <h1>Client Archipelago</h1>
             <p>Serveur Host & Port</p>
-            <input type="text" value={serverHostAndPort} onChange={(e) => setServerAndPort(e.target.value)} />
+            <input type="text" placeholder='Ex: archipelago.gg:38281' value={serverHostAndPort} onChange={(e) => setServerAndPort(e.target.value)} />
             <p>Player Name</p>
-            <input type="text" value={slotName} onChange={(e) => setSlotName(e.target.value)} />
+            <input type="text" placeholder='SlotName' value={slotName} onChange={(e) => setSlotName(e.target.value)} />
             <p>Password</p>
-            <input type="text" value={passwd} onChange={(e) => setPassword(e.target.value)} />
+            <input type="password" placeholder='leave blank if no password' value={passwd} onChange={(e) => setPassword(e.target.value)} />
             <p>Statut : {isConnected ? "Connecté ✅" : "Déconnecté ❌"}</p>
             {/* Le bouton pour se connecter */}
             <div style={{ marginTop: '10px' }}>
