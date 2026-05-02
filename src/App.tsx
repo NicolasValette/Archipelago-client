@@ -25,6 +25,7 @@ function App() {
   const [gamesList, setGamesList] = useState<Set<string>>(new Set())
   const [locationId, setLocationId] = useState<Record<number, string>>({})
   const appVersion = import.meta.env.VITE_APP_VERSION;
+  const itemNames = useMemo(() => items.map(item => item.name), [items]);
 
   useEffect(() => {
     // On ne remonte que si la page change réellement
@@ -219,7 +220,7 @@ function App() {
 
             <Terminal title="Log du serveur" messages={messages} />
 
-            <Terminal title="Liste des objets" messages={(items.map(item => item.name))} />
+            <Terminal title="Liste des objets" messages={itemNames} />
 
           </div>
         ) :

@@ -9,10 +9,13 @@ interface TerminalProps {
 
 export function Terminal({ messages, title }: TerminalProps) { // export function Terminal(props: TerminalProps) { et ensuite acces comme c# props.message...
     const bottomRef = useRef<HTMLDivElement>(null);
+    const prevLengthRef = useRef(messages.length);
     useEffect(() => 
     {
-        // scrollIntoView est une fonction native du navigateur
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" , block: 'nearest'});
+        if (messages.length > prevLengthRef.current) {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth", block: 'nearest' });
+    }
+    prevLengthRef.current = messages.length;
     }, [messages]);
   return (
     <div className="terminal-box" style={{ 
