@@ -24,6 +24,7 @@ function App() {
   const [rooms, setRooms] = useState<Room[]>([])
   const [gamesList, setGamesList] = useState<Set<string>>(new Set())
   const [locationId, setLocationId] = useState<Record<number, string>>({})
+  const appVersion = import.meta.env.VITE_APP_VERSION;
 
   useEffect(() => {
     // On ne remonte que si la page change réellement
@@ -231,6 +232,9 @@ function App() {
           />
         )
       }
+      <div style={{ fontSize: '0.8em', color: '#666' }}>
+        Version : {appVersion}
+      </div>
     </div>
   );
 }
