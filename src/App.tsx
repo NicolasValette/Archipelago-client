@@ -24,6 +24,7 @@ function App() {
   const [rooms, setRooms] = useState<Room[]>([])
   const [gamesList, setGamesList] = useState<Set<string>>(new Set())
   const [locationId, setLocationId] = useState<Record<number, string>>({})
+  const [errorMsg, setError] = useState("")
   const appVersion = import.meta.env.VITE_APP_VERSION;
   const itemNames = useMemo(() => items.map(item => item.name), [items]);
 
@@ -33,11 +34,10 @@ function App() {
   }, [currentPage]);
 
 
-  
+
   useEffect(() => {
     if (isSubscribed.current) return;
-    function handleLocationCheck(locationIds: number[])
-    {
+    function handleLocationCheck(locationIds: number[]) {
       setLocactionCheck((prev) => [...new Set([...prev, ...locationIds])]);
     }
     function handleItems(itemsList: Item[]) {
@@ -52,18 +52,18 @@ function App() {
     client.messages.on("message", handleMessage);
     client.items.on("itemsReceived", handleItems);
     client.room.on("locationsChecked", handleLocationCheck)
-   
+
     isSubscribed.current = true;
 
     return () => {
       client.messages.off("message", handleMessage);
       client.items.off("itemsReceived", handleItems);
       client.room.off("locationsChecked", handleLocationCheck)
-   
+
       isSubscribed.current = false;
     };
   }, []);
-  
+
   const locationNamesChecked = useMemo(() => {
     return locationCheck.map(id => locationId[id] || `Unknown Location (${id})`);
   }, [locationCheck, locationId]);
@@ -78,19 +78,13 @@ function App() {
       return;
     }
     try {
-      // C'est ici que la magie opère avec archipelago.js
+      setError(""); // Réinitialise les erreurs précédentes
       localStorage.setItem("ap_host", serverHostAndPort);
       localStorage.setItem("ap_slot", slotName);
       console.log("Tentative de connexion à :", serverHostAndPort);
       await client.login(serverHostAndPort, slotName, "", { tags: ["Niko Client", "Tracker"], slotData: true });
       setConnected(true);
       //handleItems(client.items.received);
-    } catch (erreur) {
-      console.error("La connexion a échoué", erreur);
-      setConnected(false); // On réactive le bouton en cas d'échec
-      Disconnect();
-    }
-    try {
       console.log("Récupération des données du package " + client.game);
       const tempData = await client.players.self.fetchSlotData() // Récupère les données du slot pour avoir toute les info nécéssaire
       const area = tempData['area_trials'];
@@ -99,9 +93,9 @@ function App() {
       const gamesSet = new Set<string>();
       const dataPackage = await client.package.findPackage(client.game);
       if (dataPackage) {
-          // On récupère la table qui transforme l'ID en Nom
-          const locTable = dataPackage.reverseLocationTable as Record<number, string>;
-          setLocationId(locTable);
+        // On récupère la table qui transforme l'ID en Nom
+        const locTable = dataPackage.reverseLocationTable as Record<number, string>;
+        setLocationId(locTable);
       }
       const loc = dataPackage?.reverseLocationTable as Record<number, string>
       setLocationId(loc);
@@ -112,9 +106,9 @@ function App() {
           trials: Object.entries(trialsData as Record<string, any>).map(([key2, trialGameName]) => {
             const description = objectivesDict[trialGameName as string];
             let trialGame;
-           // console.log("game : " + game);
+            // console.log("game : " + game);
             if (areaGameDict[roomKey] as string === "Game Medley") {
-          //    console.log("description : " + description as string);
+              //    console.log("description : " + description as string);
               trialGame = (description as string).split("->")[0].trim();
             }
             else {
@@ -133,16 +127,22 @@ function App() {
       });
       setRooms(areaList);
       setGamesList(gamesSet);
-      
+
       // await getStoredData(client.game);
       // await setupTrackerData(client.game);
       console.log("recup")
+      setCurrentPage('tracker'); // On change d'état pour changer de page
     }
     catch (erreur) {
-      console.error("Récupération des données échouées : " + erreur)
+      console.error("Erreur : ", (erreur as Error).message);
+      setError((erreur as Error).message);
+      setConnected(false); // On réactive le bouton en cas d'échec
+      setCurrentPage('login'); // On reste sur la page de connexion en cas d'erreur
+      Disconnect();
     }
-    setCurrentPage('tracker'); // On change d'état pour changer de page
+
   };
+
   const Disconnect = () => {
     console.log("Disonnect")
     setConnected(false);
@@ -162,40 +162,7 @@ function App() {
     }
   };
 
-  // const setupTrackerData = async (gameName: string) => {
-  //   // 1. Récupérer le dictionnaire complet du jeu
-  //   const dataPackage = await client.package.fetchPackage([gameName]);
-  //   var st = client.storage.fetchItemNameGroups(gameName);
-
-  //   if (dataPackage) {
-  //     // Liste de tous les items possibles dans le jeu
-
-  //     const allPossibleItems = Object.entries(dataPackage.games[gameName]).map(([id, name]) => ({
-  //       id: parseInt(id),
-  //       name: name
-  //     }));
-
-  //     // // Liste de tous les lieux (Trials, Keys, etc.)
-  //     // const allLocations = Object.entries(dataPackage.location_id_to_name).map(([id, name]) => ({
-  //     //   id: parseInt(id),
-  //     //   name: name
-  //     // }));
-
-  //     console.log("Données chargées pour le tracker !");
-  //     // C'est ici que tu filtrerais pour ne garder que "Keymaster's Keep", etc.
-  //     setAllItems(allPossibleItems.map(item => client.package.lookupItemName(gameName, item.id)))
-  //   }
-  // };
-  // const getStoredData = async (gameName: string) => {
-  //   const data = await client.storage.fetchItemNameGroups(gameName);
-  //   const data2 = await client.storage.fetchLocationNameGroups(gameName);
-  //   const data5 = client.storage.store
-  //   const data3 = await client.storage.fetch('slot_data');
-  //   const data4 = await client.storage.fetch('area_trial_game_objectives');
-  //   console.log("recup");
-  // }
-
-
+  
   return (
     <div className="App">
       {currentPage === 'login' ?
@@ -208,7 +175,7 @@ function App() {
             <input type="text" placeholder='SlotName' value={slotName} onChange={(e) => setSlotName(e.target.value)} />
             <p>Password</p>
             <input type="password" placeholder='leave blank if no password' value={passwd} onChange={(e) => setPassword(e.target.value)} />
-            <p>Statut : {isConnected ? "Connecté ✅" : "Déconnecté ❌"}</p>
+            <p>Statut : {isConnected ? "Connecté ✅" : "Déconnecté ❌"} {errorMsg ? errorMsg : ""}</p>
             {/* Le bouton pour se connecter */}
             <div style={{ marginTop: '10px' }}>
               {!isConnected ? (
@@ -240,7 +207,7 @@ function App() {
       }
       <div style={{ fontSize: '0.7em', color: '#666' }}>
         <p>Version : {appVersion}</p>
-        <p style={{ fontSize: '0.6em'}}><i>NoNiDev - 2026</i></p>
+        <p style={{ fontSize: '0.6em' }}><i>NoNiDev - 2026</i></p>
       </div>
     </div>
   );
