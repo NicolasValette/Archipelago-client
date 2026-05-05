@@ -1,5 +1,5 @@
 import type { Client, Item } from 'archipelago.js';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { Room } from '../types';
 import { RoomCard } from './RoomCard';
 
@@ -18,7 +18,23 @@ interface TrackerProps {
 
 export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, gameList, locationChecked, onBack }) => {
 
-    const [selectedGame, setSelectedGame] = useState("All")
+    const [selectedGame, setSelectedGame] = useState<string[]>(["All"]);
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => { /* Gestion du clic en dehors du dropdown pour le fermer */
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+    
+
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -74,9 +90,9 @@ export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, gameList,
             .filter(room => unlockedRoomNames.has(room.name)) // Garder uniquement les salles débloquées
             .map(room => {
                 // Pour chaque salle, on filtre ses propres trials selon le jeu sélectionné
-                const matchingTrials = selectedGame === "All"
+                const matchingTrials = selectedGame.includes("All")
                     ? room.trials.filter(t => !locationChecked.includes(t.name))
-                    : room.trials.filter(t => !locationChecked.includes(t.name) && t.game === selectedGame);
+                    : room.trials.filter(t => !locationChecked.includes(t.name) && selectedGame.includes(t.game));
 
                 // On renvoie une copie de la salle avec uniquement les trials filtrés
                 return { ...room, trials: matchingTrials };
@@ -85,7 +101,18 @@ export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, gameList,
             .filter(room => room.trials.length > 0);
 
     }, [items, rooms, locationChecked,selectedGame]);
-    //setPlayerRoom(roomsTmp);
+    
+    const toggleGame = (game: string) => {
+        setSelectedGame(prev => 
+            prev.includes(game) ? prev.filter(g => g !== game) : [...prev, game]
+        );
+    };
+
+    // Texte dynamique pour le bouton
+    const buttonText = selectedGame.length === 0 
+        ? "Tous les jeux" 
+        : `${selectedGame.length} jeu(x) sélectionné(s)`;
+
     return (
         <div style={{ padding: '20px', textAlign: 'left' }}>
             <button onClick={onBack} style={{ marginBottom: '20px' }}>
@@ -94,22 +121,36 @@ export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, gameList,
 
             <h2>{title}</h2>
 
-            <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: '#1e1e1e', borderRadius: '8px', border: '1px solid #333' }}>
-                <label htmlFor="game-select" style={{ marginRight: '10px' }}>Filtrer par jeu :</label>
-                <select
-                    id="game-select"
-                    value={selectedGame}
-                    onChange={(e) => setSelectedGame(e.target.value)}
-                    style={{ padding: '8px', borderRadius: '4px', backgroundColor: '#2a2a2a', color: 'white', border: '1px solid #555' }}
+            {/* Dropdown pour filtrer par jeu */}
+            <div className="custom-dropdown" ref={dropdownRef} style={{ position: 'relative', width: '250px' }}>
+                {/* Le bouton qui simule le select */}
+                <button 
+                    onClick={() => setIsOpen(!isOpen)}
+                    style={styles.dropdownButton}
                 >
-                    {availableGame.map(game => (
-                        <option key={game} value={game}>{game}</option>
-                    ))}
-                </select>
-                <small style={{ marginLeft: '15px', color: '#aaa' }}>
-                    {filteredRooms.length} salle(s) visible(s)
-                </small>
+                    {buttonText} 
+                    <span>{isOpen ? ' ▲' : ' ▼'}</span>
+                </button>
+
+                {/* La liste déroulante (conditionnelle) */}
+                {isOpen && (
+                    <div style={styles.dropdownMenu}>
+                        {availableGame.map(game => (
+                            <label key={game} style={styles.dropdownItem}>
+                                <input 
+                                    style={styles.checkbox}
+                                    type="checkbox" 
+                                    checked={selectedGame.includes(game)}
+                                    onChange={() => toggleGame(game)}
+                                />
+                                <span style={{ marginLeft: '8px' }}>{game}</span>
+                            </label>
+                        ))}
+                    </div>
+                )}
             </div>
+
+
             <div style={{ display: 'grid', gap: '10px' }}>
                 {filteredRooms.length > 0 ? (
                     filteredRooms.map((room) => (
@@ -121,4 +162,49 @@ export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, gameList,
             </div>
         </div>
     );
+};
+
+const styles = {
+    dropdownButton: {
+        width: '100%',
+        padding: '10px',
+        backgroundColor: '#2a2a2a',
+        color: 'white',
+        border: '1px solid #444',
+        borderRadius: '4px',
+        textAlign: 'left' as const,
+        display: 'flex',
+        justifyContent: 'space-between',
+        cursor: 'pointer'
+    },
+    dropdownMenu: {
+        position: 'absolute' as const,
+        top: '100%',
+        left: 0,
+        right: 0,
+        backgroundColor: '#1e1e1e',
+        border: '1px solid #444',
+        borderRadius: '4px',
+        marginTop: '4px',
+        maxHeight: '250px',
+        overflowY: 'auto' as const,
+        zIndex: 1000, // Pour passer au-dessus du contenu
+        boxShadow: '0px 4px 10px rgba(0,0,0,0.5)'
+    },
+    dropdownItem: {
+        fontSize: '0.85rem',
+        lineHeight: '1.2',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '4px 8px',
+        cursor: 'pointer',
+        transition: 'background 0.2s',
+        borderBottom: '1px solid #333'
+    },
+    checkbox: {
+        // RÉDUCTION ICI : On réduit un peu la taille de la case elle-même
+        transform: 'scale(0.85)',
+        marginRight: '8px',
+        cursor: 'pointer'
+    }
 };
