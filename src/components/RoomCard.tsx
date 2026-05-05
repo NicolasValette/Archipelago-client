@@ -12,7 +12,7 @@ export function RoomCard({ room }: RoomCardProps) {
       borderRadius: '4px',
       backgroundColor: '#222',
       color: 'white'
-    }}><h1>{room.name}</h1>
+    }}><h2>{room.name}</h2>
       {
         room.trials.map((trial) => (
           <div key={trial.name} style={{

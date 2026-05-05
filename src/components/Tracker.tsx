@@ -164,6 +164,8 @@ export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, gameList,
     );
 };
 
+
+/* STYLES */
 const styles = {
     dropdownButton: {
         width: '100%',
@@ -188,7 +190,7 @@ const styles = {
         marginTop: '4px',
         maxHeight: '250px',
         overflowY: 'auto' as const,
-        zIndex: 1000, // Pour passer au-dessus du contenu
+        zIndex: 1000,
         boxShadow: '0px 4px 10px rgba(0,0,0,0.5)'
     },
     dropdownItem: {
@@ -202,7 +204,6 @@ const styles = {
         borderBottom: '1px solid #333'
     },
     checkbox: {
-        // RÉDUCTION ICI : On réduit un peu la taille de la case elle-même
         transform: 'scale(0.85)',
         marginRight: '8px',
         cursor: 'pointer'
