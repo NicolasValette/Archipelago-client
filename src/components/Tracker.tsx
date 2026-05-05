@@ -40,9 +40,23 @@ export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, gameList,
     }, []);
 
     const availableGame = useMemo(() => {
-        const sortedGames = Array.from(gameList).sort()
-        return ["All", ...sortedGames]
-    }, [gameList]);
+        const gamesSet = new Set<string>();
+        rooms.forEach(room => {
+            if (items.some((item: Item) => 
+                    item.locationName.includes(room.name)
+                ))
+                {
+                    room.trials.forEach(trial => {
+                        // .some() renvoie true si au moins un élément respecte la condition
+                        if (!locationChecked.some(checked => checked.includes(trial.name))) {
+                            gamesSet.add(trial.game);
+                        }
+                    });
+                }
+        });
+        const sortedList = Array.from(gamesSet).sort((a, b) => a.localeCompare(b));
+        return ["All", ...sortedList]
+    }, [rooms, items]);
     // const roomsTmp: Room[] = [];
     // rooms.forEach((item) => {
     //     RoomRecord[item.name] = item;
