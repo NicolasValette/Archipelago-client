@@ -16,7 +16,7 @@ interface TrackerProps {
     onBack: () => void; // Une fonction pour revenir à l'accueil
 }
 
-export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, gameList, locationChecked, onBack }) => {
+export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, locationChecked, onBack }) => {
 
     const [selectedGame, setSelectedGame] = useState<string[]>(["All"]);
     const [isOpen, setIsOpen] = useState(false);
