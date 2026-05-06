@@ -117,9 +117,15 @@ export const Tracker: React.FC<TrackerProps> = ({ title, items, rooms, locationC
     }, [items, rooms, locationChecked,selectedGame]);
     
     const toggleGame = (game: string) => {
-        setSelectedGame(prev => 
-            prev.includes(game) ? prev.filter(g => g !== game) : [...prev, game]
-        );
+        setSelectedGame(prev => {
+            // On filtre les jeux sélectionnés : si "All" est sélectionné, on le désélectionne et inversement. Sinon, on ajoute ou retire le jeu de la sélection.
+            if (game === "All") {
+                return prev.includes("All") ? prev.filter(g => g !== "All") : ["All"];
+            }
+            else {
+                return prev.includes(game) ? prev.filter(g => g !== game && g !== "All") : [...prev.filter(g => g !== "All"), game]
+            }
+    });
     };
 
     // Texte dynamique pour le bouton
