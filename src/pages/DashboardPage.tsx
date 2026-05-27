@@ -5,6 +5,7 @@ const mockRooms: Room[] = [
   { 
     id: '1',
     name: "Room 1",
+    constraint: "Constraint",
     trials:[],
     //trials: [{ id: 't1', name: 'Énigme Laser'}] 
   },
