@@ -13,6 +13,9 @@ export function RoomCard({ room }: RoomCardProps) {
       backgroundColor: '#222',
       color: 'white'
     }}><h2>{room.name}</h2>
+      {room.constraint?.length > 0 && (
+        <p><b>Constraint</b> : {room.constraint}</p>
+      )}
       {
         room.trials.map((trial) => (
           <div key={trial.name} style={{

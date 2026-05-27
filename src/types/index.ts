@@ -13,7 +13,7 @@ export interface Trial {
 export interface Room {
     id: string;
     name: string;
-   // constraint: string;
+    constraint: string;
     trials: Trial[];
     //requiredKeys: Key[];
 }

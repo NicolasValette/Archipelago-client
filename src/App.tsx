@@ -90,6 +90,7 @@ function App() {
       const area = tempData['area_trials'];
       const areaGameDict = tempData?.['area_games'] as Record<string, string>
       const objectivesDict = tempData?.['area_trial_game_objectives'] as Record<string, any>
+      const constraintDict = tempData?.['area_game_optional_constraints'] as Record<string, any>
       const gamesSet = new Set<string>();
       const dataPackage = await client.package.findPackage(client.game);
       if (dataPackage) {
@@ -103,6 +104,7 @@ function App() {
         return {
           id: roomKey,
           name: roomKey,
+          constraint: constraintDict?.[roomKey] as string,
           trials: Object.entries(trialsData as Record<string, any>).map(([key2, trialGameName]) => {
             const description = objectivesDict[trialGameName as string];
             let trialGame;
