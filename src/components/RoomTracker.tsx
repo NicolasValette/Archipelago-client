@@ -17,7 +17,7 @@ interface RoomProps {
     sendCheck: (locationId: number) => void;
 }
 
-export const RoomTracker: React.FC<RoomProps> = ({ title, items, rooms, locationChecked, onBack, sendCheck }) => {
+export const RoomTracker: React.FC<RoomProps> = ({ title, items, rooms, locationChecked, sendCheck }) => {
 
 
     //const [currentTab, setCurrentTab] = useState<'rooms' | 'trials'>('rooms');
