@@ -1,10 +1,12 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { Client, clientStatuses, Item } from 'archipelago.js'
+
 import './App.css'
 import { Terminal } from './Client/Terminal';
+//import { RoomTracker } from './components/RoomTracker';
 import { Tracker } from './components/Tracker';
 import type { Room } from './types';
-
+import type { ConnectionOptions } from 'archipelago.js';
 const client = new Client();
 
 function App() {
@@ -23,10 +25,14 @@ function App() {
   const [currentPage, setCurrentPage] = useState<'login' | 'tracker'>('login')
   const [rooms, setRooms] = useState<Room[]>([])
   const [gamesList, setGamesList] = useState<Set<string>>(new Set())
-  const [locationId, setLocationId] = useState<Record<number, string>>({})
+  const [locationId, setLocationId] = useState<Record<string, number>>({})
+  const [revLocationId, setRevLocationId] = useState<Record<number, string>>({})
+  const [AllKeysColor, setAllKeysColor] = useState<Record<string, string>>({})
   const [errorMsg, setError] = useState("")
+  const [lockCombinations, setLockCombinations] = useState<Record<string, any>>({});
   const appVersion = import.meta.env.VITE_APP_VERSION;
   const itemNames = useMemo(() => items.map(item => item.name), [items]);
+
 
   useEffect(() => {
     // On ne remonte que si la page change réellement
@@ -38,10 +44,11 @@ function App() {
   useEffect(() => {
     if (isSubscribed.current) return;
     function handleLocationCheck(locationIds: number[]) {
+      console.log("Locations checked: ", locationIds);
       setLocactionCheck((prev) => [...new Set([...prev, ...locationIds])]);
     }
     function handleItems(itemsList: Item[]) {
-      //console.log("Ajout d'un objet : " + itemsList)
+      console.log("Ajout d'un objet : " + itemsList)
       setItems((items) => [...items, ...itemsList]);
     }
     const handleMessage = (text: string) => {
@@ -52,22 +59,36 @@ function App() {
     client.messages.on("message", handleMessage);
     client.items.on("itemsReceived", handleItems);
     client.room.on("locationsChecked", handleLocationCheck)
-
+    client.messages.on("itemSent", (text, item) => {
+      console.log(text); // The actual chat message that's sent for receive.
+      console.log(item); // The `Item` that was sent and its applicable data.
+    });
     isSubscribed.current = true;
 
     return () => {
       client.messages.off("message", handleMessage);
       client.items.off("itemsReceived", handleItems);
       client.room.off("locationsChecked", handleLocationCheck)
-
+      client.messages.off("itemSent", (text, item) => {
+            console.log(text); // The actual chat message that's sent for receive.
+            console.log(item); // The `Item` that was sent and its applicable data.
+          });
       isSubscribed.current = false;
     };
   }, []);
 
   const locationNamesChecked = useMemo(() => {
-    return locationCheck.map(id => locationId[id] || `Unknown Location (${id})`);
-  }, [locationCheck, locationId]);
+    return locationCheck.map(id => revLocationId[id] || `Unknown Location (${id})`);
+  }, [locationCheck, revLocationId]);
 
+  const getRandomColor = () => {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
   const Connect = async () => {
     console.log("Connect")
     // 1. On indique que la connexion commence (pour désactiver le bouton)
@@ -81,8 +102,13 @@ function App() {
       setError(""); // Réinitialise les erreurs précédentes
       localStorage.setItem("ap_host", serverHostAndPort);
       localStorage.setItem("ap_slot", slotName);
+
       console.log("Tentative de connexion à :", serverHostAndPort);
-      await client.login(serverHostAndPort, slotName, "", { tags: ["Niko Client", "Tracker"], slotData: true });
+      const options : ConnectionOptions = {
+        slotData: true,
+        tags: ["AP"]
+      };
+      const tempData1 = await client.login(serverHostAndPort, slotName, "Keymaster's Keep", options);
       setConnected(true);
       //handleItems(client.items.received);
       console.log("Récupération des données du package " + client.game);
@@ -91,18 +117,31 @@ function App() {
       const areaGameDict = tempData?.['area_games'] as Record<string, string>
       const objectivesDict = tempData?.['area_trial_game_objectives'] as Record<string, any>
       const constraintDict = tempData?.['area_game_optional_constraints'] as Record<string, any>
+      const lockCombination = tempData?.['lock_combinations'] as Record<string, string[]>
+      const keys = tempData?.['selected_magic_keys'] as Record<string, string>;
+      const allKeyNames = Object.values(keys || {});
+      const keyColors = allKeyNames.reduce<Record<string, string>>((acc, keyName) => {
+        if (!acc[keyName]) {
+          acc[keyName] = getRandomColor();
+        }
+        return acc;
+      },{});
+      setAllKeysColor(keyColors);
       const gamesSet = new Set<string>();
       const dataPackage = await client.package.findPackage(client.game);
-      if (dataPackage) {
-        // On récupère la table qui transforme l'ID en Nom
-        const locTable = dataPackage.reverseLocationTable as Record<number, string>;
-        setLocationId(locTable);
-      }
-      const loc = dataPackage?.reverseLocationTable as Record<number, string>
+      // if (dataPackage) {
+      //   // On récupère la table qui transforme l'ID en Nom
+      //   const locTable = dataPackage.reverseLocationTable as Record<number, string>;
+      //   setLocationId(locTable);
+      // }
+      const revloc = dataPackage?.reverseLocationTable as Record<number, string>
+      setRevLocationId(revloc);
+      const loc = dataPackage?.locationTable as Record<string, number>
       setLocationId(loc);
+      setLockCombinations(lockCombination);
       const areaList: Room[] = Object.entries(area as Record<string, any>).map(([roomKey, trialsData]) => {
         return {
-          id: roomKey,
+          id: loc['Unlock: ' + roomKey].toString(),
           name: roomKey,
           constraint: constraintDict?.[roomKey] as string,
           trials: Object.entries(trialsData as Record<string, any>).map(([key2, trialGameName]) => {
@@ -119,7 +158,7 @@ function App() {
             //console.log("Ajout du jeu : " + trialGame as string) 
             gamesSet.add(trialGame as string);
             return {
-              id: key2,
+              id: loc[trialGameName as string].toString(),
               name: trialGameName as string,
               description: description,
               game: trialGame as string
@@ -164,6 +203,18 @@ function App() {
     }
   };
 
+  const sendCheck = async (locId: number) => {
+    try {
+      console.log("send check for location ID :", locId, "- type of locId:", typeof locId);
+      const ids = [locId];
+      
+      client.check(...ids);
+     
+      console.log("Send Check successful for location ID:", locId);
+    } catch (erreur) {
+      console.error("Send Check failed", erreur);
+    }
+  };
   
   return (
     <div className="App">
@@ -203,7 +254,10 @@ function App() {
             trialDesc={[]}
             gameList={gamesList}
             locationChecked={locationNamesChecked}
+            lockCominations={lockCombinations}
+            allKeysColor={AllKeysColor}
             onBack={() => setCurrentPage('login')}
+            sendCheck={sendCheck}
           />
         )
       }

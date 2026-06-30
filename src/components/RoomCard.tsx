@@ -2,9 +2,20 @@ import type { Room } from '../types';
 
 interface RoomCardProps {
   room: Room
+  onValidateTrial: (trialId: number) => void
 }
 
-export function RoomCard({ room }: RoomCardProps) {
+export function RoomCard({ room, onValidateTrial }: RoomCardProps) {
+
+  const handleValidateClick = (event: React.MouseEvent<HTMLButtonElement>, trialId: string) => {
+    if (event.ctrlKey || event.metaKey) {
+      console.log(`Validation du trial avec l'ID : ${trialId}`);
+      onValidateTrial(parseInt(trialId));
+
+    } else {
+      alert("Action sécurisée : Maintenez la touche Ctrl enfoncée et cliquez pour valider !");
+    }
+  };
   return (
     <div key={room.name} style={{
       padding: '10px',
@@ -18,14 +29,41 @@ export function RoomCard({ room }: RoomCardProps) {
       )}
       {
         room.trials.map((trial) => (
-          <div key={trial.name} style={{
-            padding: '10px',
-            border: '1px solid #555',
-            borderRadius: '4px',
-            backgroundColor: '#222',
-            color: 'white'
-          }}>
-            <b>{trial.name}</b> - <b>[{trial.game}]</b> <i>{trial.description}</i>
+          <div 
+            key={trial.name} 
+            style={{
+              display: 'flex',          // 💡 Active Flexbox
+              alignItems: 'center',     // 💡 Aligne verticalement le texte et le bouton au centre
+              justifyContent: 'space-between', // 💡 Repousse le texte à gauche et le bouton à droite
+              gap: '15px',              // 
+              padding: '10px',
+              border: '1px solid #555',
+              borderRadius: '4px',
+              backgroundColor: '#222',
+              color: 'white'
+            }}>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontWeight: 'bold', color: '#ffb703' }}>[{trial.game}]</span>{' '}
+              <span  style={{fontSize:'small', color: '#a7a59f'}}>{trial.name}</span>
+              <p>{trial.description && <span style={{ color: '#ffffff', marginLeft: '8px' }}>{trial.description}</span>}</p>
+            </div>
+            <button
+              onClick={(e) => handleValidateClick(e, trial.id)}
+              title="Ctrl + Clic pour valider"
+              style={{
+                padding: '6px 12px',
+                backgroundColor: '#7e0101',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+                fontWeight: 'bold',
+                whiteSpace: 'nowrap' // 💡 Empêche le texte du bouton de revenir à la ligne sur petit écran
+              }}
+            >
+              Valider (Ctrl+Clic)
+            </button>
           </div>
         ))
       }
