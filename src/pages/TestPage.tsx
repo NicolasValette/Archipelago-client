@@ -22,7 +22,7 @@ export const TestPage : React.FC<TrackerProps> = ({ client }) => {
             locations: [parseInt(customValue)]}
             
         client.check(parseInt(customValue))
-        var t = client.socket.send(pack);
+        client.socket.send(pack);
         
         setCustomResult(`Check sent for location ID: ${customValue}`);
     }

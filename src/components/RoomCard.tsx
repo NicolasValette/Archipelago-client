@@ -1,5 +1,5 @@
 import type { Room } from '../types';
-
+import copyIcon from '../assets/copy-solid-full.svg';
 interface RoomCardProps {
   room: Room
   onValidateTrial: (trialId: number) => void
@@ -47,23 +47,49 @@ export function RoomCard({ room, onValidateTrial }: RoomCardProps) {
               <span  style={{fontSize:'small', color: '#a7a59f'}}>{trial.name}</span>
               <p>{trial.description && <span style={{ color: '#ffffff', marginLeft: '8px' }}>{trial.description}</span>}</p>
             </div>
-            <button
-              onClick={(e) => handleValidateClick(e, trial.id)}
-              title="Ctrl + Clic pour valider"
-              style={{
-                padding: '6px 12px',
-                backgroundColor: '#7e0101',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '0.85rem',
-                fontWeight: 'bold',
-                whiteSpace: 'nowrap' // 💡 Empêche le texte du bouton de revenir à la ligne sur petit écran
-              }}
-            >
-              Valider (Ctrl+Clic)
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                onClick={() => {
+                  const textToCopy = `> [${trial.game}] - ${trial.description} (${trial.name})`;
+                  navigator.clipboard.writeText(textToCopy);
+                }}
+                title="copy"
+                style={{
+                  padding: '6px 12px',
+                  backgroundColor: '#7e0101',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap' // 💡 Empêche le texte du bouton de revenir à la ligne sur petit écran
+                }}
+              >
+                <img 
+                  src={copyIcon} 
+                  alt="Copier" 
+                  style={{ width: '16px', height: '16px' }} // 💡 Gère la taille de ton icône ici
+                />
+              </button>
+              <button
+                onClick={(e) => handleValidateClick(e, trial.id)}
+                title="Ctrl + Clic pour valider"
+                style={{
+                  padding: '6px 12px',
+                  backgroundColor: '#7e0101',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap' // 💡 Empêche le texte du bouton de revenir à la ligne sur petit écran
+                }}
+              >
+                Valider (Ctrl+Clic)
+              </button>
+            </div>
           </div>
         ))
       }

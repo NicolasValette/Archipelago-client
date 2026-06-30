@@ -139,10 +139,7 @@ export const RoomTracker: React.FC<RoomProps> = ({ title, items, rooms, location
 
     return (
         <div style={{ padding: '20px', textAlign: 'left' }}>
-            <button onClick={onBack} style={{ marginBottom: '20px' }}>
-                ⬅ Retour au menu
-            </button>
-
+           
             <h2>{title}</h2>
 
             {/* Dropdown pour filtrer par jeu */}
