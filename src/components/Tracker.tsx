@@ -1,9 +1,7 @@
 import type { Client, Item } from 'archipelago.js';
 import type { Room } from '../types';
 import { useState } from 'react';
-import { TrialsView } from './TrialsView';
 import { RoomsView } from './RoomsView';
-import { TestPage } from '../pages/TestPage';
 import { RoomTracker } from './RoomTracker';
 
 type TrackerTab = 'rooms' | 'trials';// | 'Test';

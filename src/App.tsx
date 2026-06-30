@@ -25,7 +25,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState<'login' | 'tracker'>('login')
   const [rooms, setRooms] = useState<Room[]>([])
   const [gamesList, setGamesList] = useState<Set<string>>(new Set())
-  const [locationId, setLocationId] = useState<Record<string, number>>({})
+  //const [locationId, setLocationId] = useState<Record<string, number>>({})
   const [revLocationId, setRevLocationId] = useState<Record<number, string>>({})
   const [AllKeysColor, setAllKeysColor] = useState<Record<string, string>>({})
   const [errorMsg, setError] = useState("")
@@ -108,11 +108,11 @@ function App() {
         slotData: true,
         tags: ["AP"]
       };
-      const tempData1 = await client.login(serverHostAndPort, slotName, "Keymaster's Keep", options);
+      const tempData = await client.login(serverHostAndPort, slotName, "Keymaster's Keep", options);
       setConnected(true);
       //handleItems(client.items.received);
       console.log("Récupération des données du package " + client.game);
-      const tempData = await client.players.self.fetchSlotData() // Récupère les données du slot pour avoir toute les info nécéssaire
+      //const tempData = await client.players.self.fetchSlotData() // Récupère les données du slot pour avoir toute les info nécéssaire
       const area = tempData['area_trials'];
       const areaGameDict = tempData?.['area_games'] as Record<string, string>
       const objectivesDict = tempData?.['area_trial_game_objectives'] as Record<string, any>
@@ -137,7 +137,7 @@ function App() {
       const revloc = dataPackage?.reverseLocationTable as Record<number, string>
       setRevLocationId(revloc);
       const loc = dataPackage?.locationTable as Record<string, number>
-      setLocationId(loc);
+     // setLocationId(loc);
       setLockCombinations(lockCombination);
       const areaList: Room[] = Object.entries(area as Record<string, any>).map(([roomKey, trialsData]) => {
         return {
@@ -145,6 +145,7 @@ function App() {
           name: roomKey,
           constraint: constraintDict?.[roomKey] as string,
           trials: Object.entries(trialsData as Record<string, any>).map(([key2, trialGameName]) => {
+            console.log("key " + key2);
             const description = objectivesDict[trialGameName as string];
             let trialGame;
             // console.log("game : " + game);

@@ -1,6 +1,5 @@
-import type { Client, Item } from 'archipelago.js';
+import type { Item } from 'archipelago.js';
 import type { Room } from "../types";
-import { RoomCard } from './RoomCard';
 import { useMemo } from 'react';
 
 interface RoomsViewProps {
