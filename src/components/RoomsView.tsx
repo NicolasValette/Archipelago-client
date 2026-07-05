@@ -63,7 +63,7 @@ export const RoomsView = ({ rooms, items, lockCominations, allKeysColor, sendChe
                             backgroundColor: '#222',
                             color: 'white'
                             }}>
-                                <h2>{room.name} <span style={{ fontSize: '0.5em', color: '#868686', fontStyle:'italic', fontWeight: 'normal' }}>({room.id})</span></h2>
+                                <h2><span style={{ color: '#ffffff' }}>{room.name}</span> <span style={{ fontSize: '0.5em', color: '#868686', fontStyle:'italic', fontWeight: 'normal' }}>({room.id})</span></h2>
                                 {roomState(room)}
                             </div>
                     ))
