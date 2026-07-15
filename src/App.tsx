@@ -249,7 +249,7 @@ function App() {
         ) :
         (
           <Tracker
-            title="Mes Trials & Rooms"
+            title="Rooms & Trials"
             items={items} // Ici on passe tes messages ou ta liste d'items
             client={client}
             trials={[]}

@@ -23,7 +23,7 @@ interface TrackerProps {
 
 
 
-export const Tracker: React.FC<TrackerProps> = ({ rooms, items, lockCominations, client,onBack, sendCheck, allKeysColor, gameList, locationChecked }) => {
+export const Tracker: React.FC<TrackerProps> = ({ rooms, items, lockCominations, client,onBack, sendCheck, allKeysColor, gameList, locationChecked, title }) => {
     const [currentTab, setCurrentTab] = useState<TrackerTab>('rooms');
 
     
@@ -39,7 +39,7 @@ export const Tracker: React.FC<TrackerProps> = ({ rooms, items, lockCominations,
                 sendCheck={sendCheck} />;
         case 'trials':
             return <RoomTracker
-                        title="Mes Trials & Rooms"
+                        title={title}
                         items={items} // Ici on passe tes messages ou ta liste d'items
                         client={client}
                         trials={[]}
