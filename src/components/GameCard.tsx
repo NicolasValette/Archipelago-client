@@ -1,14 +1,15 @@
-import type { Room } from '../types';
+import type { Trial } from '../types';
 import copyIcon from '../assets/copy-solid-full.svg';
-interface RoomCardProps {
-  room: Room
-  isGameView: boolean
-  onValidateTrial: (trialId: number) => void
+
+interface GameCardProps {
+    game: string;
+    trials: Trial[];
+    onValidateTrial: (trialId: number) => void
 }
 
-export function RoomCard({ room, onValidateTrial }: RoomCardProps) {
+export function GameCard({ game, trials, onValidateTrial }: GameCardProps) {
 
-  const handleValidateClick = (event: React.MouseEvent<HTMLButtonElement>, trialId: string) => {
+const handleValidateClick = (event: React.MouseEvent<HTMLButtonElement>, trialId: string) => {
     if (event.ctrlKey || event.metaKey) {
       console.log(`Validation du trial avec l'ID : ${trialId}`);
       onValidateTrial(parseInt(trialId));
@@ -17,19 +18,17 @@ export function RoomCard({ room, onValidateTrial }: RoomCardProps) {
       alert("Action sécurisée : Maintenez la touche Ctrl enfoncée et cliquez pour valider !");
     }
   };
-  return (
-    <div key={room.name} style={{
+
+   return (
+    <div key={game} style={{
       padding: '10px',
       border: '1px solid #555',
       borderRadius: '4px',
       backgroundColor: '#222',
       color: 'white'
-    }}><h2>{room.name}</h2>
-      {room.constraint?.length > 0 && (
-        <p><b>Constraint</b> : {room.constraint}</p>
-      )}
+    }}><h2>{game}</h2>
       {
-        room.trials.map((trial) => (
+        trials.map((trial) => (
           <div 
             key={trial.name} 
             style={{
@@ -46,12 +45,13 @@ export function RoomCard({ room, onValidateTrial }: RoomCardProps) {
             <div style={{ flex: 1 }}>
               <span style={{ fontWeight: 'bold', color: '#ffb703' }}>[{trial.game}]</span>{' '}
               <span  style={{fontSize:'small', color: '#a7a59f'}}>{trial.name}</span>
+              {trial.constraint?.length > 0 ?  <p  style={{fontSize:'small', color: '#a7a59f'}}>{trial.constraint}</p> : null}
               <p>{trial.description && <span style={{ color: '#ffffff', marginLeft: '8px' }}>{trial.description}</span>}</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <button
                 onClick={() => {
-                  const textToCopy = `> [${trial.game}] - ${trial.description} (${trial.name})`;
+                  const textToCopy = `> **${trial.description}** ${trial.constraint.length > 0 ? `(${trial.constraint})` : ''}\n> ${trial.game}\n> -# (*${trial.name}*)`;
                   navigator.clipboard.writeText(textToCopy);
                 }}
                 title="copy"
@@ -97,3 +97,4 @@ export function RoomCard({ room, onValidateTrial }: RoomCardProps) {
     </div>
   );
 }
+

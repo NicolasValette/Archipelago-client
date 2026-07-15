@@ -8,6 +8,8 @@ export interface Trial {
     name: string;
     game: string;
     description: string;
+    roomName: string;
+    constraint: string;
 }
 
 export interface Room {

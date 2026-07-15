@@ -162,7 +162,9 @@ function App() {
               id: loc[trialGameName as string].toString(),
               name: trialGameName as string,
               description: description,
-              game: trialGame as string
+              game: trialGame as string,
+              roomName: roomKey,
+              constraint: constraintDict?.[roomKey] as string
             }
           })
         };

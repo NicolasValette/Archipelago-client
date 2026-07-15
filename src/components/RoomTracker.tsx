@@ -1,7 +1,8 @@
 import type { Client, Item } from 'archipelago.js';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import type { Room } from '../types';
+import type { Room, Trial } from '../types';
 import { RoomCard } from './RoomCard';
+import { GameCard } from './GameCard';
 
 // On définit ce dont le Tracker a besoin pour travailler
 interface RoomProps {
@@ -16,6 +17,10 @@ interface RoomProps {
     onBack: () => void; // Une fonction pour revenir à l'accueil
     sendCheck: (locationId: number) => void;
 }
+interface GameGroup {
+    gameName: string;
+    trials: Trial[];
+    };
 
 export const RoomTracker: React.FC<RoomProps> = ({ title, items, rooms, locationChecked, sendCheck }) => {
 
@@ -23,6 +28,7 @@ export const RoomTracker: React.FC<RoomProps> = ({ title, items, rooms, location
     //const [currentTab, setCurrentTab] = useState<'rooms' | 'trials'>('rooms');
     const [selectedGame, setSelectedGame] = useState<string[]>(["All"]);
     const [isOpen, setIsOpen] = useState(false);
+    const [isRoomView, setIsRoomView] = useState(true);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => { /* Gestion du clic en dehors du dropdown pour le fermer */
@@ -118,6 +124,32 @@ export const RoomTracker: React.FC<RoomProps> = ({ title, items, rooms, location
             .filter(room => room.trials.length > 0);
 
     }, [items, rooms, locationChecked,selectedGame]);
+
+    const filteredTrials = useMemo(() => {
+        const gamesMap: Record<string, GameGroup> = {};
+
+        // On part des pièces déjà filtrées pour construire nos groupes de jeux
+        filteredRooms.forEach(room => {
+            room.trials.forEach(trial => {
+                if (!gamesMap[trial.game]) {
+                    gamesMap[trial.game] = {
+                        gameName: trial.game,
+                        trials: []
+                    };
+                }
+                gamesMap[trial.game].trials.push({
+                    id: trial.id,
+                    name: trial.name,
+                    description: trial.description,
+                    roomName: room.name,
+                    constraint: room.constraint,
+                    game: trial.game
+                });
+            });
+        });
+        // On transforme l'objet dictionnaire en tableau trié par nom de jeu
+        return Object.values(gamesMap).sort((a, b) => a.gameName.localeCompare(b.gameName));
+    }, [filteredRooms]);
     
     const toggleGame = (game: string) => {
         setSelectedGame(prev => {
@@ -133,9 +165,9 @@ export const RoomTracker: React.FC<RoomProps> = ({ title, items, rooms, location
 
 
     // Texte dynamique pour le bouton
-    const buttonText = selectedGame.length === 0 
-        ? "Tous les jeux" 
-        : `${selectedGame.length} jeu(x) sélectionné(s)`;
+    const buttonText = selectedGame.length === 0 || (selectedGame.length === 1 && selectedGame[0] === "All") 
+        ? "All games" 
+        : `${selectedGame.length} game(s) selected`;
 
     return (
         <div style={{ padding: '20px', textAlign: 'left' }}>
@@ -170,17 +202,40 @@ export const RoomTracker: React.FC<RoomProps> = ({ title, items, rooms, location
                     </div>
                 )}
             </div>
-
-
+            <div className="viewSelector" style={{ position: 'relative', width: '250px' }}>
+                {/* Le bouton qui simule le select */}
+                <label key="roomView" style={styles.dropdownItem}>
+                    <input 
+                        style={styles.checkbox}
+                        type="checkbox" 
+                        checked={isRoomView}
+                        onChange={() => setIsRoomView(!isRoomView)}
+                    />
+                    <span style={{ marginLeft: '8px' }}>Sort by room</span>
+                </label>
+            </div>
+            
+            {!isRoomView ? (
+            <div style={{ display: 'grid', gap: '10px' }}>
+                {filteredTrials.length > 0 ? (
+                    filteredTrials.map((group) => (
+                        <GameCard game={group.gameName} trials={group.trials} onValidateTrial={sendCheck} />
+                    ))
+                ) : (
+                    <p>No items found at the moment...</p>
+                )}
+            </div>
+            ):(
             <div style={{ display: 'grid', gap: '10px' }}>
                 {filteredRooms.length > 0 ? (
                     filteredRooms.map((room) => (
-                        <RoomCard room={room} onValidateTrial={sendCheck} />
+                        <RoomCard room={room} isGameView={false} onValidateTrial={sendCheck} />
                     ))
                 ) : (
-                    <p>Aucun élément trouvé pour le moment...</p>
+                    <p>No items found at the moment...</p>
                 )}
-            </div>
+            </div> 
+            )}
         </div>
     );
 };
