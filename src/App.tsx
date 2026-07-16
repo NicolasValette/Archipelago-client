@@ -144,6 +144,7 @@ function App() {
           id: loc['Unlock: ' + roomKey].toString(),
           name: roomKey,
           constraint: constraintDict?.[roomKey] as string,
+          game: areaGameDict[roomKey] as string,
           trials: Object.entries(trialsData as Record<string, any>).map(([key2, trialGameName]) => {
             console.log("key " + key2);
             const description = objectivesDict[trialGameName as string];

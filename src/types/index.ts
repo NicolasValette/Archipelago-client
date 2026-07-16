@@ -16,6 +16,7 @@ export interface Room {
     id: string;
     name: string;
     constraint: string;
+    game: string;
     trials: Trial[];
     //requiredKeys: Key[];
 }

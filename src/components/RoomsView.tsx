@@ -41,6 +41,7 @@ export const RoomsView = ({ rooms, items, lockCominations, allKeysColor, sendChe
             return (
                 <div style={{ color: 'green', fontWeight: 'bold' }}>
                     Room unlocked
+                    {room.game && <span> - {room.game}</span>}
                 </div>
             );
         }
