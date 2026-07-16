@@ -27,9 +27,6 @@ export const RoomsView = ({ rooms, items, lockCominations, allKeysColor, sendChe
         });
     }, [rooms, lockCominations, ownedItemNames, isOpenHided]);
 
-    const isRoomOpen = (room: Room) => {
-        return ownedItemNames.has('Unlock: ' + room.name);
-    }
     const roomState = (room: Room) => {
         const keys = lockCominations[room.name]?.filter((key: any) => !ownedItemNames.has(key));
         const coloredKeys = keys ? keys.map((key: any, index: number) => (
@@ -63,12 +60,6 @@ export const RoomsView = ({ rooms, items, lockCominations, allKeysColor, sendChe
                 </button>
             </div>
         )}
-    
-    const numberOfKeysNeeded = (room: Room) => {
-        const keys = lockCominations[room.name]?.filter((key: any) => !ownedItemNames.has(key));
-        if (ownedItemNames.has('Unlock: ' + room.name)) return -1;
-        return keys ? keys.length : 0;
-    }
 
     return (
         <div>
