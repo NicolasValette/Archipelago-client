@@ -72,7 +72,7 @@ export const RoomsView = ({ rooms, items, lockCominations, allKeysColor, sendChe
 
     return (
         <div>
-            <h2>Liste des rooms ({sortedRooms.length})</h2>
+            <h2>Rooms ({sortedRooms.length})</h2>
              <div className="hideOpen" style={{ position: 'relative', width: '250px' }}>
                 {/* Le bouton qui simule le select */}
                 <label key="hideToggle" style={styles.dropdownItem}>
