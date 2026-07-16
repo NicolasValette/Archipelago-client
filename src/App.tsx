@@ -63,6 +63,8 @@ function App() {
       console.log(text); // The actual chat message that's sent for receive.
       console.log(item); // The `Item` that was sent and its applicable data.
     });
+    client.socket.on("disconnected", () => Disconnect)
+
     isSubscribed.current = true;
 
     return () => {
@@ -73,6 +75,7 @@ function App() {
             console.log(text); // The actual chat message that's sent for receive.
             console.log(item); // The `Item` that was sent and its applicable data.
           });
+      client.socket.off("disconnected", () => Disconnect)
       isSubscribed.current = false;
     };
   }, []);
